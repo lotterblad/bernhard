@@ -173,8 +173,8 @@ class Client(object):
             message = Message(events=[Event(params=event)])
             response = self.transmit(message)
             return response.ok
-        except Exception as e:
-            print '{"error": %s}' % (str(e))
+        except socket.timeout, e:
+            print '{"error": %s}' % str(e)
 
     def query(self, q):
         message = Message(query=q)
