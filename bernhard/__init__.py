@@ -2,6 +2,7 @@
 
 import socket
 import struct
+import time
 
 import pb
 
@@ -139,12 +140,13 @@ class Message(object):
 
 
 class Client(object):
-    def __init__(self, host='127.0.0.1', port=5555,timeout=0, transport=TCPTransport):
+    def __init__(self, host='127.0.0.1', port=5555,timeout=0, send_response =False,transport=TCPTransport):
         self.host = host
         self.port = port
         self.timeout = timeout
         self.transport = transport
         self.connection = None
+        self.send_response = False
 
 
     def connect(self):
@@ -171,8 +173,11 @@ class Client(object):
     def send(self, event):
         try:
             message = Message(events=[Event(params=event)])
-            response = self.transmit(message)
-            return response.ok
+            if(self.send_response):
+                response = self.transmit(message)
+                return response.ok
+            else:
+                self.transmit(message)
         except socket.timeout, e:
             print '{"riemann_send_status": %s}' % str(e)
 
