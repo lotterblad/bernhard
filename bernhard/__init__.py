@@ -38,9 +38,9 @@ class TCPTransport(object):
 
 
 class SSLTransport(TCPTransport):
-    def __init__(self, host, port, keyfile=None, certfile=None, ca_certs=None):
+    def __init__(self, host, port, timeout, keyfile=None, certfile=None, ca_certs=None):
         import ssl
-        TCPTransport.__init__(self, host, port)
+        TCPTransport.__init__(self, host, port, timeout)
 
         self.sock = ssl.wrap_socket(self.sock,
                                     keyfile=keyfile,
@@ -51,9 +51,10 @@ class SSLTransport(TCPTransport):
 
 
 class UDPTransport(object):
-    def __init__(self, host, port):
+    def __init__(self, host, port, timeout =0):
         self.host = host
         self.port = port
+        self.timeout = timeout
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def close(self):
@@ -138,7 +139,7 @@ class Message(object):
 
 
 class Client(object):
-    def __init__(self, host='127.0.0.1', port=5555,timeout=1, transport=TCPTransport):
+    def __init__(self, host='127.0.0.1', port=5555,timeout=0, transport=TCPTransport):
         self.host = host
         self.port = port
         self.timeout = timeout
