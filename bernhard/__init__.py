@@ -14,8 +14,9 @@ class TransportError(Exception):
 
 
 class TCPTransport(object):
-    def __init__(self, host, port):
+    def __init__(self, host, port, timeout = 0):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.settimeout(timeout)
         self.sock.connect((host, port))
 
     def close(self):
@@ -137,14 +138,16 @@ class Message(object):
 
 
 class Client(object):
-    def __init__(self, host='127.0.0.1', port=5555, transport=TCPTransport):
+    def __init__(self, host='127.0.0.1', port=5555,timeout=1, transport=TCPTransport):
         self.host = host
         self.port = port
+        self.timeout = timeout
         self.transport = transport
         self.connection = None
 
+
     def connect(self):
-        self.connection = self.transport(self.host, self.port)
+        self.connection = self.transport(self.host, self.port, self.timeout)
 
     def disconnect(self):
         try:
@@ -165,9 +168,12 @@ class Client(object):
         return Message()
 
     def send(self, event):
-        message = Message(events=[Event(params=event)])
-        response = self.transmit(message)
-        return response.ok
+        try:
+            message = Message(events=[Event(params=event)])
+            response = self.transmit(message)
+            return response.ok
+        except Exception as e:
+            print '{"error": %s}' % (str(e))
 
     def query(self, q):
         message = Message(query=q)
