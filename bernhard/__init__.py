@@ -174,7 +174,7 @@ class Client(object):
             response = self.transmit(message)
             return response.ok
         except socket.timeout, e:
-            print '{"error": %s}' % str(e)
+            print '{"riemann_send_status": %s}' % str(e)
 
     def query(self, q):
         message = Message(query=q)
